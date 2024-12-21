@@ -13,7 +13,7 @@ OBJECTS = $(patsubst src/%.cpp, $(OBJECT_FOLDER)/%.o, $(SRC))
 
 CC = x86_64-w64-mingw32-g++
 INCLUDE_FOLDER = -Iinclude/SDL2
-LINK_FLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 -mwindows
+LINK_FLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 
 COMPILE_FLAGS = -Wall -Wextra -pedantic -std=c++11
 
 
