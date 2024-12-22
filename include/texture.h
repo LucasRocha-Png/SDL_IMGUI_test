@@ -15,6 +15,6 @@ class LTexture{
     int get_height(void);
 
     Status load_from_file(const char* path);
-    void render(int x, int y);
+    void render(int x, int y, SDL_Rect* clip);
     void free(void);
 };

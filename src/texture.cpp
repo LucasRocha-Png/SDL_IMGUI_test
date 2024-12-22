@@ -59,7 +59,13 @@ Status LTexture::load_from_file(const char* path){
     return OK;
 }
 
-void LTexture::render(int x, int y){
+void LTexture::render(int x, int y, SDL_Rect* clip = nullptr){
     SDL_Rect renderQuad = {x, y, this->width, this->height};
-    SDL_RenderCopy(gRenderer, this->texture, NULL, &renderQuad);
+
+    if(clip != nullptr){
+        renderQuad.w = clip->w;
+        renderQuad.h = clip->h;
+    }
+
+    SDL_RenderCopy(gRenderer, this->texture, clip, &renderQuad);
 }

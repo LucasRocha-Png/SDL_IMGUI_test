@@ -17,9 +17,9 @@ LINK_FLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
 COMPILE_FLAGS = -Wall -Wextra -pedantic -std=c++11
 
 
-all: MKFOLDER $(PROJECT)
+all: MKFOLDER $(BUILD_FOLDER)/$(PROJECT).exe
 
-$(PROJECT): $(OBJECTS)
+$(BUILD_FOLDER)/$(PROJECT).exe: $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(BUILD_FOLDER)/$(PROJECT).exe $(LINK_FLAGS)
 
 $(OBJECT_FOLDER)/%.o: ./src/%.cpp
@@ -32,7 +32,7 @@ clean:
 	rm -rf $(BUILD_FOLDER)/$(PROJECT).exe
 	rm -rf $(OBJECT_FOLDER)/*.o
 
-run: $(PROJECT)
+run: $(BUILD_FOLDER)/$(PROJECT).exe
 	$(BUILD_FOLDER)/$(PROJECT).exe
 
 .PHONY: clean MKFOLDER run
