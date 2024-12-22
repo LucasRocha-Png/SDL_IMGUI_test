@@ -16,7 +16,6 @@ int main(int argc, char* args[]){
     }
 
 	run_app();
-    
     close_sdl();
 
 	return 0;
