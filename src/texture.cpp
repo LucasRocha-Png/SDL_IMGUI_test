@@ -16,7 +16,8 @@ SDL_Texture* load_texture(const char* path)
 
 Status load_media(void){
     //Load PNG texture
-    
+    gTexture = load_texture("assets/images/texture.png");
+    if (gTexture == nullptr) return ERR;
     return OK;
 }
 
