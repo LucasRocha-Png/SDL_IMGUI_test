@@ -1,3 +1,0 @@
-enum Result {
-Err, Ok
-};

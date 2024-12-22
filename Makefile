@@ -12,7 +12,7 @@ OBJECT_FOLDER = bin
 OBJECTS = $(patsubst src/%.cpp, $(OBJECT_FOLDER)/%.o, $(SRC))
 
 CC = x86_64-w64-mingw32-g++
-INCLUDE_FOLDER = -Iinclude/SDL2
+INCLUDE_FOLDER = -Iinclude/SDL2 -Iinclude
 LINK_FLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 
 COMPILE_FLAGS = -Wall -Wextra -pedantic -std=c++11
 
@@ -22,14 +22,17 @@ all: MKFOLDER $(PROJECT)
 $(PROJECT): $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(BUILD_FOLDER)/$(PROJECT).exe $(LINK_FLAGS)
 
-$(OBJECT_FOLDER)/%.o: ./src/%.cpp ./include/%.h
+$(OBJECT_FOLDER)/%.o: ./src/%.cpp
 	$(CC) $< $(INCLUDE_FOLDER) $(COMPILE_FLAGS) -c -o $@
 
 MKFOLDER:
-	@ mkdir -p $(BUILD_FOLDER)
+	@ mkdir -p $(BUILD_FOLDER) $(OBJECT_FOLDER)
 
 clean:
 	rm -rf $(BUILD_FOLDER)/$(PROJECT).exe
 	rm -rf $(OBJECT_FOLDER)/*.o
 
-.PHONY: clean MKFOLDER
+run: $(PROJECT)
+	$(BUILD_FOLDER)/$(PROJECT).exe
+
+.PHONY: clean MKFOLDER run
