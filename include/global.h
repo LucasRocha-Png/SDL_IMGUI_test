@@ -1,9 +1,12 @@
 #pragma once
-#include <SDL2/SDL.h>
+#include <SDL.h>
+#include <SDL_image.h>
 
 extern const int SCREEN_WIDTH;
 extern const int SCREEN_HEIGHT;
 
+extern SDL_Window* gWindow;
+extern SDL_Surface* gScreenSurface; 
 
 typedef enum{
     ERR,

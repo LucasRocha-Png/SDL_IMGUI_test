@@ -1,18 +1,44 @@
 #include "texture.h"
 #include "global.h"
 
-#include <cstdio>
-
-
 SDL_Surface* gKeyPressSurfaces[KEY_PRESS_SURFACE_TOTAL];
 SDL_Surface* gCurrentSurface = nullptr;
 
 SDL_Surface* load_bmp(const char* path){
-    SDL_Surface* LoadedSurface = SDL_LoadBMP(path);
-    if(LoadedSurface == nullptr){
-        printf("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
+    SDL_Surface* loadedSurface = SDL_LoadBMP(path);
+    if(loadedSurface == nullptr){
+        SDL_Log("Unable to load image %s! SDL Error: %s\n", path, SDL_GetError());
+        return nullptr;
     }
-    return LoadedSurface;
+
+    SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0 );
+    SDL_FreeSurface(loadedSurface);
+
+    if (optimizedSurface == nullptr){
+        SDL_Log("Unable to optimized the surface %s! SDL Error: %s\n", path, SDL_GetError());
+        return nullptr;
+    }
+
+    return optimizedSurface;
+}
+
+
+SDL_Surface* load_png(const char* path){
+    SDL_Surface* loadedSurface = IMG_Load(path);
+    if(loadedSurface == nullptr){
+        SDL_Log("Unable to load image %s! SDL Error: %s\n", path, IMG_GetError());
+        return nullptr;
+    }
+
+    SDL_Surface* optimizedSurface = SDL_ConvertSurface(loadedSurface, gScreenSurface->format, 0 );
+    SDL_FreeSurface(loadedSurface);
+
+    if (optimizedSurface == nullptr){
+        SDL_Log("Unable to optimized the surface %s! SDL Error: %s\n", path, SDL_GetError());
+        return nullptr;
+    }
+
+    return optimizedSurface;
 }
 
 Status load_media(void){

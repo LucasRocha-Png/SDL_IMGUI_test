@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include "main.h"
 #include "global.h"
 #include "sdl_app.h"
@@ -10,10 +8,10 @@ const int SCREEN_HEIGHT = 480;
 
 
 int main(int argc, char* args[]){
-    printf("Iniciando programa.\n");
+    SDL_Log("Iniciando programa.\n");
 
     if (init_sdl() == ERR){
-        printf("Failed to initialize!\n");
+        SDL_Log("Failed to initialize!\n");
         return -1;
     }
 

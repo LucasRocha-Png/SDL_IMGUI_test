@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include "sdl_app.h"
 #include "event_handler.h"
 #include "global.h"
@@ -15,9 +13,16 @@ SDL_Surface* gScreenSurface = nullptr;
 */
 Status init_sdl(void){
 	if(SDL_Init(SDL_INIT_VIDEO) != 0){
-		printf("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+		SDL_Log("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
         return ERR;
 	}
+
+
+    int imgFlags = IMG_INIT_JPG;
+    if (!(IMG_Init(imgFlags) & imgFlags)){
+        SDL_Log("SDL Image could not initialize! SDL_Error: %s\n", IMG_GetError());
+        return ERR;
+    }
 	
     gWindow = SDL_CreateWindow("Lucas Rocha", 
                                 SDL_WINDOWPOS_UNDEFINED, // X
@@ -26,7 +31,7 @@ Status init_sdl(void){
                                 SCREEN_HEIGHT,           // Heigh
                                 SDL_WINDOW_SHOWN);
     if(gWindow == nullptr){
-        printf("Window could not be created! SDL_Error: %s\n", SDL_GetError());
+        SDL_Log("Window could not be created! SDL_Error: %s\n", SDL_GetError());
         return ERR;
     }
 
@@ -51,7 +56,13 @@ void run_app(void){
             running = false;
         }
 
-        SDL_BlitSurface(gCurrentSurface, NULL, gScreenSurface, NULL);
+        SDL_Rect stretchRect;
+        stretchRect.x = 0;
+        stretchRect.y = 0;
+        stretchRect.w = SCREEN_WIDTH;
+        stretchRect.h = SCREEN_HEIGHT;
+        SDL_BlitScaled(gCurrentSurface, NULL, gScreenSurface, &stretchRect);
+
         SDL_UpdateWindowSurface(gWindow);
     }
 }
