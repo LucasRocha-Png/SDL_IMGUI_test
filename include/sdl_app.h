@@ -1,10 +1,10 @@
 #pragma once
 
 #include "global.h"
+#include "texture.h"
 
-extern SDL_Window* gWindow;
-extern SDL_Surface* gScreenSurface; 
 
 Status init_sdl(void);
+Status load_media(void);
 void run_app(void);
 void close_sdl(void);   

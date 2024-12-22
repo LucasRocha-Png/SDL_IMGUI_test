@@ -7,9 +7,8 @@ extern const int SCREEN_HEIGHT;
 
 extern SDL_Window* gWindow;
 extern SDL_Surface* gScreenSurface; 
-extern SDL_Texture* gTexture;
 extern SDL_Renderer* gRenderer;
-    
+
 typedef enum{
     ERR,
     OK,

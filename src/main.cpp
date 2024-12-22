@@ -12,6 +12,7 @@ int main(int argc, char* args[]){
 
     if (init_sdl() == ERR){
         SDL_Log("Failed to initialize!\n");
+        close_sdl();
         return -1;
     }
 
