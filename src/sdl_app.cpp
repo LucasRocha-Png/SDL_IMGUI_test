@@ -7,19 +7,18 @@
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
-LTexture gPromptTexture;
+LTexture gTimeTextTexture;
+LTexture gPromptTextTexture;
 
-//The music that will be played
-Mix_Music* gMusic = nullptr;
 
 TTF_Font* gFont;
 
-//The sound effects that will be used
-Mix_Chunk* gScratch = nullptr;
-Mix_Chunk* gHigh = nullptr;
-Mix_Chunk* gMedium = nullptr;
-Mix_Chunk* gLow = nullptr;
+Uint64 startTime = 0;
 
+std::stringstream timeText;
+
+//Set text color as black
+SDL_Color textColor = { 0, 0, 0, 255 };
 
 /*
     Cria a janela do SDL
@@ -74,40 +73,16 @@ Status init_sdl(void){
 }
 
 Status load_media(void){
+     //Open the font
+    gFont = TTF_OpenFont("assets/fonts/lazy.ttf", 28);
+    if(gFont == nullptr){
+        SDL_Log("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError() );
+        return ERR;
+    }
+        
     //Load prompt texture
-    if(!gPromptTexture.loadFromFile( "assets/images/prompt.png")){
-        return ERR;
-    }
-
-    //Load music
-    gMusic = Mix_LoadMUS( "assets/audio/beat.wav" );
-    if(gMusic == nullptr){
-        SDL_Log( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
-        return ERR;
-    }
-    
-    //Load sound effects
-    gScratch = Mix_LoadWAV( "assets/audio/scratch.wav" );
-    if(gScratch == nullptr){
-        SDL_Log("Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        return ERR;
-    }
-    
-    gHigh = Mix_LoadWAV( "assets/audio/high.wav" );
-    if(gHigh == nullptr){
-        SDL_Log("Failed to load high sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        return ERR;
-    }
-
-    gMedium = Mix_LoadWAV( "assets/audio/medium.wav" );
-    if(gMedium == nullptr){
-        SDL_Log("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
-        return ERR;
-    }
-
-    gLow = Mix_LoadWAV( "assets/audio/low.wav" );
-    if(gLow == nullptr){
-        SDL_Log("Failed to load low sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+    if(!gPromptTextTexture.loadFromRenderedText( "Press Enter to Reset Start Time.", textColor)){
+        printf("Unable to render prompt texture!\n");
         return ERR;
     }
 
@@ -130,10 +105,20 @@ void run_app(void){
             running = false;
         }
 
+        //Set text to be rendered
+        timeText.str( "" );
+        timeText << "Milliseconds since start time " << SDL_GetTicks() - startTime; 
+
+        if(!gTimeTextTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) ){
+            printf( "Unable to render time texture!\n" );
+        }
+
+
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gPromptTexture.render(0, 0);
+        gPromptTextTexture.render( ( SCREEN_WIDTH - gPromptTextTexture.getWidth() ) / 2, 0 );
+        gTimeTextTexture.render( ( SCREEN_WIDTH - gPromptTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gPromptTextTexture.getHeight() ) / 2 );
     
         SDL_RenderPresent(gRenderer);
     }
@@ -143,22 +128,9 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
-    //Free loaded images
-    gPromptTexture.free();
+    gTimeTextTexture.free();
+    gPromptTextTexture.free();
 
-    //Free the sound effects
-    Mix_FreeChunk(gScratch);
-    Mix_FreeChunk(gHigh);
-    Mix_FreeChunk(gMedium);
-    Mix_FreeChunk(gLow);
-    gScratch = nullptr;
-    gHigh = nullptr;
-    gMedium = nullptr;
-    gLow = nullptr;
-    
-    //Free the music
-    Mix_FreeMusic(gMusic);
-    gMusic = nullptr;
 
     SDL_DestroyRenderer(gRenderer);
     gRenderer = nullptr;

@@ -5,7 +5,9 @@
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
+
 #include <cmath>
+#include <sstream>
 
 extern const int SCREEN_WIDTH;
 extern const int SCREEN_HEIGHT;
@@ -16,12 +18,7 @@ extern SDL_Renderer* gRenderer;
 
 extern TTF_Font* gFont;
 
-extern Mix_Chunk* gScratch;
-extern Mix_Chunk* gHigh;
-extern Mix_Chunk* gMedium;
-extern Mix_Chunk* gLow;
-
-extern Mix_Music* gMusic;
+extern Uint64 startTime;
 
 typedef enum{
     ERR,
