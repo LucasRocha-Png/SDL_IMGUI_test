@@ -9,6 +9,9 @@ extern SDL_Window* gWindow;
 extern SDL_Surface* gScreenSurface; 
 extern SDL_Renderer* gRenderer;
 
+extern SDL_RendererFlip flipType;
+extern double degrees;
+
 typedef enum{
     ERR,
     OK,

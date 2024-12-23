@@ -5,11 +5,11 @@
 
 LTexture::LTexture(void) : texture(nullptr), width(0), height(0) {}
 
-int LTexture::get_width(void){
+int LTexture::getWidth(void){
     return this->width;
 }
 
-int LTexture::get_height(void){
+int LTexture::getHeight(void){
     return this->height;
 }
 
@@ -57,7 +57,7 @@ Status LTexture::load_from_file(const char* path){
     return OK;
 }
 
-void LTexture::render(int x, int y, SDL_Rect* clip){
+void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip){
     SDL_Rect renderQuad = {x, y, this->width, this->height};
 
     if(clip != nullptr){
@@ -65,7 +65,7 @@ void LTexture::render(int x, int y, SDL_Rect* clip){
         renderQuad.h = clip->h;
     }
 
-    SDL_RenderCopy(gRenderer, this->texture, clip, &renderQuad);
+    SDL_RenderCopyEx(gRenderer, this->texture, clip, &renderQuad, angle, center, flip);
 }
 
 

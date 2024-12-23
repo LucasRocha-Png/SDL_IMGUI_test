@@ -6,9 +6,10 @@
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
-const int WALKING_ANIMATION_FRAMES = 4;
-SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];
-LTexture gSpriteSheetTexture;
+LTexture gArrowTexture;
+double degrees = 0.0;
+SDL_RendererFlip flipType = SDL_FLIP_NONE;
+
 
 /*
     Cria a janela do SDL
@@ -46,30 +47,9 @@ Status init_sdl(void){
 
 Status load_media(void){
     
-    //Load Foo' texture
-    if(gSpriteSheetTexture.load_from_file("assets/images/foo_animated.png") == ERR){
+    if (gArrowTexture.load_from_file("assets/images/arrow.png") == ERR){
         return ERR;
     }
-
-    gSpriteClips[ 0 ].x =   0;
-    gSpriteClips[ 0 ].y =   0;
-    gSpriteClips[ 0 ].w =  64;
-    gSpriteClips[ 0 ].h = 205;
-
-    gSpriteClips[ 1 ].x =  64;
-    gSpriteClips[ 1 ].y =   0;
-    gSpriteClips[ 1 ].w =  64;
-    gSpriteClips[ 1 ].h = 205;
-    
-    gSpriteClips[ 2 ].x = 128;
-    gSpriteClips[ 2 ].y =   0;
-    gSpriteClips[ 2 ].w =  64;
-    gSpriteClips[ 2 ].h = 205;
-
-    gSpriteClips[ 3 ].x = 192;
-    gSpriteClips[ 3 ].y =   0;
-    gSpriteClips[ 3 ].w =  64;
-    gSpriteClips[ 3 ].h = 205;
 
     return OK;
 }
@@ -83,7 +63,6 @@ void run_app(void){
         return;
     }
 
-    int frame = 0;
     bool running = true;
     while (running) {
         if (event_handler() == STOP){
@@ -93,15 +72,7 @@ void run_app(void){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        SDL_Rect* currentClip = &gSpriteClips[ frame / 4 ];
-        gSpriteSheetTexture.render( ( SCREEN_WIDTH - currentClip->w ) / 2, ( SCREEN_HEIGHT - currentClip->h ) / 2, currentClip );
-        //Go to next frame
-        ++frame;
-
-        //Cycle animation
-        if(frame / 4 >= WALKING_ANIMATION_FRAMES){
-            frame = 0;
-        }
+        gArrowTexture.render((SCREEN_WIDTH - gArrowTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gArrowTexture.getHeight() ) / 2, nullptr, degrees, nullptr, flipType);
     
         SDL_RenderPresent(gRenderer);
     }
@@ -111,7 +82,7 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
-    gSpriteSheetTexture.free();
+    gArrowTexture.free();
 
     SDL_DestroyRenderer(gRenderer);
     gRenderer = nullptr;
