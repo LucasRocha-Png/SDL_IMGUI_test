@@ -9,8 +9,6 @@ extern SDL_Window* gWindow;
 extern SDL_Surface* gScreenSurface; 
 extern SDL_Renderer* gRenderer;
 
-extern Uint8 a;
-
 typedef enum{
     ERR,
     OK,

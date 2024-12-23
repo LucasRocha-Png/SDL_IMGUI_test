@@ -6,10 +6,9 @@
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
-LTexture gModulatedTexture;
-LTexture gBackgroundTexture;
-
-Uint8 a = 255;
+const int WALKING_ANIMATION_FRAMES = 4;
+SDL_Rect gSpriteClips[WALKING_ANIMATION_FRAMES];
+LTexture gSpriteSheetTexture;
 
 /*
     Cria a janela do SDL
@@ -36,7 +35,7 @@ Status init_sdl(void){
     }
 
     // Create renderer for window
-    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED);
+    gRenderer = SDL_CreateRenderer(gWindow, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
     if(gRenderer == nullptr){
         SDL_Log("Renderer could not be created! SDL Error: %s\n", SDL_GetError());
         return ERR;
@@ -48,14 +47,29 @@ Status init_sdl(void){
 Status load_media(void){
     
     //Load Foo' texture
-    if(gModulatedTexture.load_from_file("assets/images/fadeout.png") == ERR){
+    if(gSpriteSheetTexture.load_from_file("assets/images/foo_animated.png") == ERR){
         return ERR;
     }
 
-    //Load Foo' texture
-    if(gBackgroundTexture.load_from_file("assets/images/fadein.png") == ERR){
-        return ERR;
-    }
+    gSpriteClips[ 0 ].x =   0;
+    gSpriteClips[ 0 ].y =   0;
+    gSpriteClips[ 0 ].w =  64;
+    gSpriteClips[ 0 ].h = 205;
+
+    gSpriteClips[ 1 ].x =  64;
+    gSpriteClips[ 1 ].y =   0;
+    gSpriteClips[ 1 ].w =  64;
+    gSpriteClips[ 1 ].h = 205;
+    
+    gSpriteClips[ 2 ].x = 128;
+    gSpriteClips[ 2 ].y =   0;
+    gSpriteClips[ 2 ].w =  64;
+    gSpriteClips[ 2 ].h = 205;
+
+    gSpriteClips[ 3 ].x = 192;
+    gSpriteClips[ 3 ].y =   0;
+    gSpriteClips[ 3 ].w =  64;
+    gSpriteClips[ 3 ].h = 205;
 
     return OK;
 }
@@ -69,8 +83,7 @@ void run_app(void){
         return;
     }
 
-    gModulatedTexture.setBlendMode(SDL_BLENDMODE_BLEND);
-
+    int frame = 0;
     bool running = true;
     while (running) {
         if (event_handler() == STOP){
@@ -80,11 +93,16 @@ void run_app(void){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gBackgroundTexture.render(0, 0);
+        SDL_Rect* currentClip = &gSpriteClips[ frame / 4 ];
+        gSpriteSheetTexture.render( ( SCREEN_WIDTH - currentClip->w ) / 2, ( SCREEN_HEIGHT - currentClip->h ) / 2, currentClip );
+        //Go to next frame
+        ++frame;
 
-        gModulatedTexture.setAlpha(a);
-        gModulatedTexture.render(0, 0);
-        
+        //Cycle animation
+        if(frame / 4 >= WALKING_ANIMATION_FRAMES){
+            frame = 0;
+        }
+    
         SDL_RenderPresent(gRenderer);
     }
 }
@@ -93,8 +111,7 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
-    gModulatedTexture.free();
-    gBackgroundTexture.free();
+    gSpriteSheetTexture.free();
 
     SDL_DestroyRenderer(gRenderer);
     gRenderer = nullptr;
