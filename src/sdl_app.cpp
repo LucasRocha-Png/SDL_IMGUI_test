@@ -7,11 +7,19 @@
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
+LTexture gPromptTexture;
+
+//The music that will be played
+Mix_Music* gMusic = nullptr;
+
 TTF_Font* gFont;
 
-std::unique_ptr<LButton[]> gButtons (new LButton[TOTAL_BUTTONS]);
-std::unique_ptr<SDL_Rect[]> gSpriteClips(new SDL_Rect[BUTTON_SPRITE_TOTAL]);
-LTexture gButtonSpriteSheetTexture;
+//The sound effects that will be used
+Mix_Chunk* gScratch = nullptr;
+Mix_Chunk* gHigh = nullptr;
+Mix_Chunk* gMedium = nullptr;
+Mix_Chunk* gLow = nullptr;
+
 
 /*
     Cria a janela do SDL
@@ -41,6 +49,12 @@ Status init_sdl(void){
         SDL_Log("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
         return ERR;
     }
+
+    //Initialize SDL_mixer
+    if( Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048 ) < 0){
+        SDL_Log("SDL_mixer could not initialize! SDL_mixer Error: %s\n", Mix_GetError());
+        return ERR;
+    }
 	
     // Create Window
     gWindow = SDL_CreateWindow("Lucas Rocha", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, SCREEN_WIDTH, SCREEN_HEIGHT, SDL_WINDOW_SHOWN);
@@ -60,29 +74,43 @@ Status init_sdl(void){
 }
 
 Status load_media(void){
-	//Load sprites
-	if(!gButtonSpriteSheetTexture.loadFromFile("assets/images/button.png")){
-		return ERR;
-	}
-
-    //Set sprites
-    for(int i = 0; i < BUTTON_SPRITE_TOTAL; ++i){
-        gSpriteClips[ i ].x = 0;
-        gSpriteClips[ i ].y = i * 200;
-        gSpriteClips[ i ].w = BUTTON_WIDTH;
-        gSpriteClips[ i ].h = BUTTON_HEIGHT;
+    //Load prompt texture
+    if(!gPromptTexture.loadFromFile( "assets/images/prompt.png")){
+        return ERR;
     }
 
-    for(int i = 0; i < TOTAL_BUTTONS; ++i){
-        gButtons[i].setSpriteClip(gSpriteClips.get());
-        gButtons[i].setSpriteSheet(&gButtonSpriteSheetTexture);
+    //Load music
+    gMusic = Mix_LoadMUS( "assets/audio/beat.wav" );
+    if(gMusic == nullptr){
+        SDL_Log( "Failed to load beat music! SDL_mixer Error: %s\n", Mix_GetError() );
+        return ERR;
+    }
+    
+    //Load sound effects
+    gScratch = Mix_LoadWAV( "assets/audio/scratch.wav" );
+    if(gScratch == nullptr){
+        SDL_Log("Failed to load scratch sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return ERR;
+    }
+    
+    gHigh = Mix_LoadWAV( "assets/audio/high.wav" );
+    if(gHigh == nullptr){
+        SDL_Log("Failed to load high sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return ERR;
     }
 
-    //Set buttons in corners
-    gButtons[ 0 ].setPosition( 0, 0 );
-    gButtons[ 1 ].setPosition( SCREEN_WIDTH - BUTTON_WIDTH, 0 );
-    gButtons[ 2 ].setPosition( 0, SCREEN_HEIGHT - BUTTON_HEIGHT );
-    gButtons[ 3 ].setPosition( SCREEN_WIDTH - BUTTON_WIDTH, SCREEN_HEIGHT - BUTTON_HEIGHT );
+    gMedium = Mix_LoadWAV( "assets/audio/medium.wav" );
+    if(gMedium == nullptr){
+        SDL_Log("Failed to load medium sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return ERR;
+    }
+
+    gLow = Mix_LoadWAV( "assets/audio/low.wav" );
+    if(gLow == nullptr){
+        SDL_Log("Failed to load low sound effect! SDL_mixer Error: %s\n", Mix_GetError() );
+        return ERR;
+    }
+
 
     return OK;
 }
@@ -105,9 +133,7 @@ void run_app(void){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        for(int i = 0; i < TOTAL_BUTTONS; ++i){
-            gButtons[i].render();
-        }
+        gPromptTexture.render(0, 0);
     
         SDL_RenderPresent(gRenderer);
     }
@@ -117,9 +143,23 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
+    //Free loaded images
+    gPromptTexture.free();
 
-    gButtonSpriteSheetTexture.free();
+    //Free the sound effects
+    Mix_FreeChunk(gScratch);
+    Mix_FreeChunk(gHigh);
+    Mix_FreeChunk(gMedium);
+    Mix_FreeChunk(gLow);
+    gScratch = nullptr;
+    gHigh = nullptr;
+    gMedium = nullptr;
+    gLow = nullptr;
     
+    //Free the music
+    Mix_FreeMusic(gMusic);
+    gMusic = nullptr;
+
     SDL_DestroyRenderer(gRenderer);
     gRenderer = nullptr;
 
@@ -128,6 +168,7 @@ void close_sdl(void){
 
     IMG_Quit();
     TTF_Quit();
+    Mix_Quit(); 
 	SDL_Quit();
 }
 
