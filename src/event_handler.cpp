@@ -12,38 +12,28 @@ Status event_handler(void){
             return STOP; 
         }
         else if(e.type == SDL_KEYDOWN){
-                switch(e.key.keysym.sym){
-                    //Increase red
-                    case SDLK_q:
-                    r += 32;
-                    break;
-                    
-                    //Increase green
-                    case SDLK_w:
-                    g += 32;
-                    break;
-                    
-                    //Increase blue
-                    case SDLK_e:
-                    b += 32;
-                    break;
-                    
-                    //Decrease red
-                    case SDLK_a:
-                    r -= 32;
-                    break;
-                    
-                    //Decrease green
-                    case SDLK_s:
-                    g -= 32;
-                    break;
-                    
-                    //Decrease blue
-                    case SDLK_d:
-                    b -= 32;
-                    break;
+            if(e.key.keysym.sym == SDLK_w){
+                //Cap if over 255
+                if( a + 32 > 255 ){
+                    a = 255;
+                }
+                //Increment otherwise
+                else{
+                    a += 32;
                 }
             }
+            //Decrease alpha on s
+            else if(e.key.keysym.sym == SDLK_s){
+                //Cap if below 0
+                if( a - 32 < 0 ){
+                    a = 0;
+                }
+                //Decrement otherwise
+                else{
+                    a -= 32;
+                }
+            }
+        }
     }
     return CONTINUE;
 }

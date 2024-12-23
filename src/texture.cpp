@@ -57,7 +57,7 @@ Status LTexture::load_from_file(const char* path){
     return OK;
 }
 
-void LTexture::render(int x, int y, SDL_Rect* clip = nullptr){
+void LTexture::render(int x, int y, SDL_Rect* clip){
     SDL_Rect renderQuad = {x, y, this->width, this->height};
 
     if(clip != nullptr){
@@ -71,4 +71,14 @@ void LTexture::render(int x, int y, SDL_Rect* clip = nullptr){
 
 void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue){
     SDL_SetTextureColorMod(this->texture, red, green, blue );
+}
+
+void LTexture::setBlendMode(SDL_BlendMode blending){
+    //Set blending function
+    SDL_SetTextureBlendMode(this->texture, blending);
+}
+        
+void LTexture::setAlpha(Uint8 alpha){
+    //Modulate texture alpha
+    SDL_SetTextureAlphaMod(this->texture, alpha);
 }
