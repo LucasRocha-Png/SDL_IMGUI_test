@@ -6,9 +6,9 @@
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
-LTexture gArrowTexture;
-double degrees = 0.0;
-SDL_RendererFlip flipType = SDL_FLIP_NONE;
+TTF_Font* gFont;
+
+LTexture gTextTexture;
 
 
 /*
@@ -25,6 +25,12 @@ Status init_sdl(void){
     int imgFlags = IMG_INIT_JPG;
     if (!(IMG_Init(imgFlags) & imgFlags)){
         SDL_Log("SDL Image could not initialize! SDL_Error: %s\n", IMG_GetError());
+        return ERR;
+    }
+
+    // Init TTF
+    if(TTF_Init() == -1){
+        SDL_Log("SDL_ttf could not initialize! SDL_ttf Error: %s\n", TTF_GetError());
         return ERR;
     }
 	
@@ -47,7 +53,15 @@ Status init_sdl(void){
 
 Status load_media(void){
     
-    if (gArrowTexture.load_from_file("assets/images/arrow.png") == ERR){
+    //Open the font
+    gFont = TTF_OpenFont("assets/fonts/lazy.ttf", 28 );
+    if(gFont == nullptr){
+        SDL_Log("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
+        return ERR; 
+    }
+
+    SDL_Color textColor = { 0, 0, 0 };
+    if(gTextTexture.loadFromRenderedText("The quick brown fox jumps over the lazy dog", textColor) == ERR){
         return ERR;
     }
 
@@ -72,7 +86,8 @@ void run_app(void){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gArrowTexture.render((SCREEN_WIDTH - gArrowTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gArrowTexture.getHeight() ) / 2, nullptr, degrees, nullptr, flipType);
+        gTextTexture.render( ( SCREEN_WIDTH - gTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gTextTexture.getHeight() ) / 2 );
+
     
         SDL_RenderPresent(gRenderer);
     }
@@ -82,7 +97,7 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
-    gArrowTexture.free();
+    gTextTexture.free();
 
     SDL_DestroyRenderer(gRenderer);
     gRenderer = nullptr;

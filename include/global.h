@@ -1,6 +1,9 @@
 #pragma once
+
 #include <SDL.h>
 #include <SDL_image.h>
+#include <SDL_ttf.h>
+#include <cmath>
 
 extern const int SCREEN_WIDTH;
 extern const int SCREEN_HEIGHT;
@@ -9,8 +12,7 @@ extern SDL_Window* gWindow;
 extern SDL_Surface* gScreenSurface; 
 extern SDL_Renderer* gRenderer;
 
-extern SDL_RendererFlip flipType;
-extern double degrees;
+extern TTF_Font* gFont;
 
 typedef enum{
     ERR,

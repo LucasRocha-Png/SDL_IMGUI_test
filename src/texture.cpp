@@ -26,7 +26,7 @@ void LTexture::free(void){
 LTexture::~LTexture(void){
 }
 
-Status LTexture::load_from_file(const char* path){
+Status LTexture::loadFromFile(const char* path){
     this->free();
 
     // Criamos a superficie
@@ -56,6 +56,35 @@ Status LTexture::load_from_file(const char* path){
     SDL_FreeSurface(surface);
     return OK;
 }
+
+Status LTexture::loadFromRenderedText(const char* textureText, SDL_Color textColor){
+    this->free();
+    
+    SDL_Surface* textSurface = TTF_RenderText_Solid(gFont, textureText, textColor);
+    if(textSurface == nullptr){
+        SDL_Log( "Unable to render text surface! SDL_ttf Error: %s\n", TTF_GetError());
+        return ERR;
+    }
+
+    //Create texture from surface pixels
+    this->texture = SDL_CreateTextureFromSurface(gRenderer, textSurface);
+    if(this->texture == nullptr){
+        SDL_Log( "Unable to create texture from rendered text! SDL Error: %s\n", SDL_GetError());
+        return ERR;
+    }
+
+    //Get image dimensions
+    this->width = textSurface->w;
+    this->height = textSurface->h;
+
+
+    //Get rid of old surface
+    SDL_FreeSurface(textSurface);
+
+
+    return OK;
+}
+
 
 void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip){
     SDL_Rect renderQuad = {x, y, this->width, this->height};
