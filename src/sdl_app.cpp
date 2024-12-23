@@ -9,6 +9,11 @@ SDL_Window* gWindow = nullptr;
 LTexture gSpriteSheetTexture;
 SDL_Rect gSpriteClips[4];
 
+Uint8 r = 255;
+Uint8 g = 255;
+Uint8 b = 255;
+
+
 /*
     Cria a janela do SDL
 */
@@ -94,6 +99,8 @@ void run_app(void){
 
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
+
+        gSpriteSheetTexture.setColor( r, g, b );
         
         //Render top left sprite
         gSpriteSheetTexture.render(0, 0, &gSpriteClips[0]);

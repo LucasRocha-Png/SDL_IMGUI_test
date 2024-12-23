@@ -26,8 +26,6 @@ void LTexture::free(void){
 LTexture::~LTexture(void){
 }
 
-
-
 Status LTexture::load_from_file(const char* path){
     this->free();
 
@@ -68,4 +66,9 @@ void LTexture::render(int x, int y, SDL_Rect* clip = nullptr){
     }
 
     SDL_RenderCopy(gRenderer, this->texture, clip, &renderQuad);
+}
+
+
+void LTexture::setColor(Uint8 red, Uint8 green, Uint8 blue){
+    SDL_SetTextureColorMod(this->texture, red, green, blue );
 }
