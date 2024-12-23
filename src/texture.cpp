@@ -57,6 +57,7 @@ Status LTexture::loadFromFile(const char* path){
     return OK;
 }
 
+#if defined(SDL_TTF_MAJOR_VERSION)
 Status LTexture::loadFromRenderedText(const char* textureText, SDL_Color textColor){
     this->free();
     
@@ -77,13 +78,12 @@ Status LTexture::loadFromRenderedText(const char* textureText, SDL_Color textCol
     this->width = textSurface->w;
     this->height = textSurface->h;
 
-
     //Get rid of old surface
     SDL_FreeSurface(textSurface);
 
-
     return OK;
 }
+#endif
 
 
 void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip){

@@ -13,7 +13,7 @@ OBJECTS = $(patsubst src/%.cpp, $(OBJECT_FOLDER)/%.o, $(SRC))
 
 CC = x86_64-w64-mingw32-g++
 INCLUDE_FOLDER = -Iinclude/SDL2 -Iinclude
-LINK_FLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
+LINK_FLAGS = -Llib -lmingw32 -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -static-libgcc -static-libstdc++
 COMPILE_FLAGS = -Wall -Wextra -pedantic -std=c++11
 
 
@@ -22,7 +22,7 @@ all: MKFOLDER $(BUILD_FOLDER)/$(PROJECT).exe
 $(BUILD_FOLDER)/$(PROJECT).exe: $(OBJECTS)
 	$(CC) $(OBJECTS) -o $(BUILD_FOLDER)/$(PROJECT).exe $(LINK_FLAGS)
 
-$(OBJECT_FOLDER)/%.o: ./src/%.cpp
+$(OBJECT_FOLDER)/%.o: ./src/%.cpp ./src/%.cpp
 	$(CC) $< $(INCLUDE_FOLDER) $(COMPILE_FLAGS) -c -o $@
 
 MKFOLDER:

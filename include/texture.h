@@ -15,8 +15,10 @@ class LTexture{
     int getHeight(void);
     
 
-    Status loadFromFile(const char* path);
+    #if defined(SDL_TTF_MAJOR_VERSION)
     Status loadFromRenderedText(const char* textureText, SDL_Color textColor);
+    #endif
+    Status loadFromFile(const char* path);
     void setColor(Uint8 red, Uint8 green, Uint8 blue);
     void setBlendMode(SDL_BlendMode blending);
     void setAlpha(Uint8 alpha);

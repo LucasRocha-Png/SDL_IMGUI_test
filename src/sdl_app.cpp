@@ -2,14 +2,16 @@
 #include "sdl_app.h"
 #include "event_handler.h"
 #include "texture.h"    
+#include "button.h"
 
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
 TTF_Font* gFont;
 
-LTexture gTextTexture;
-
+std::unique_ptr<LButton[]> gButtons (new LButton[TOTAL_BUTTONS]);
+std::unique_ptr<SDL_Rect[]> gSpriteClips(new SDL_Rect[BUTTON_SPRITE_TOTAL]);
+LTexture gButtonSpriteSheetTexture;
 
 /*
     Cria a janela do SDL
@@ -18,6 +20,12 @@ Status init_sdl(void){
     // Init SDL
 	if(SDL_Init(SDL_INIT_VIDEO) != 0){
 		SDL_Log("SDL could not initialize! SDL_Error: %s\n", SDL_GetError());
+        return ERR;
+	}
+
+    //Set texture filtering to linear
+	if(!SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "1")){
+		SDL_Log("Warning: Linear texture filtering not enabled!");
         return ERR;
 	}
 
@@ -52,18 +60,29 @@ Status init_sdl(void){
 }
 
 Status load_media(void){
-    
-    //Open the font
-    gFont = TTF_OpenFont("assets/fonts/lazy.ttf", 28 );
-    if(gFont == nullptr){
-        SDL_Log("Failed to load lazy font! SDL_ttf Error: %s\n", TTF_GetError());
-        return ERR; 
+	//Load sprites
+	if(!gButtonSpriteSheetTexture.loadFromFile("assets/images/button.png")){
+		return ERR;
+	}
+
+    //Set sprites
+    for(int i = 0; i < BUTTON_SPRITE_TOTAL; ++i){
+        gSpriteClips[ i ].x = 0;
+        gSpriteClips[ i ].y = i * 200;
+        gSpriteClips[ i ].w = BUTTON_WIDTH;
+        gSpriteClips[ i ].h = BUTTON_HEIGHT;
     }
 
-    SDL_Color textColor = { 0, 0, 0 };
-    if(gTextTexture.loadFromRenderedText("The quick brown fox jumps over the lazy dog", textColor) == ERR){
-        return ERR;
+    for(int i = 0; i < TOTAL_BUTTONS; ++i){
+        gButtons[i].setSpriteClip(gSpriteClips.get());
+        gButtons[i].setSpriteSheet(&gButtonSpriteSheetTexture);
     }
+
+    //Set buttons in corners
+    gButtons[ 0 ].setPosition( 0, 0 );
+    gButtons[ 1 ].setPosition( SCREEN_WIDTH - BUTTON_WIDTH, 0 );
+    gButtons[ 2 ].setPosition( 0, SCREEN_HEIGHT - BUTTON_HEIGHT );
+    gButtons[ 3 ].setPosition( SCREEN_WIDTH - BUTTON_WIDTH, SCREEN_HEIGHT - BUTTON_HEIGHT );
 
     return OK;
 }
@@ -86,8 +105,9 @@ void run_app(void){
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gTextTexture.render( ( SCREEN_WIDTH - gTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gTextTexture.getHeight() ) / 2 );
-
+        for(int i = 0; i < TOTAL_BUTTONS; ++i){
+            gButtons[i].render();
+        }
     
         SDL_RenderPresent(gRenderer);
     }
@@ -97,8 +117,9 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
-    gTextTexture.free();
 
+    gButtonSpriteSheetTexture.free();
+    
     SDL_DestroyRenderer(gRenderer);
     gRenderer = nullptr;
 
@@ -106,6 +127,7 @@ void close_sdl(void){
     gWindow = nullptr;
 
     IMG_Quit();
+    TTF_Quit();
 	SDL_Quit();
 }
 

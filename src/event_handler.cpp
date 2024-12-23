@@ -1,5 +1,5 @@
 #include "event_handler.h"
-#include "texture.h"
+#include "button.h"
 #include "global.h"
 
 SDL_Event e;
@@ -10,6 +10,11 @@ Status event_handler(void){
             SDL_Log("Sair do programa.\n");
             return STOP; 
         }        
+
+        //Handle button events
+        for(int i = 0; i < TOTAL_BUTTONS; ++i){
+            gButtons[i].handleEvent(&e);
+        }
     }
     return CONTINUE;
 }

@@ -8,6 +8,7 @@ const int SCREEN_HEIGHT = 480;
 
 
 int main(int argc, char* args[]){
+
     SDL_Log("Iniciando programa.\n");
 
     if (init_sdl() == ERR){
