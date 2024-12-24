@@ -2,14 +2,16 @@
 #include "sdl_app.h"
 #include "event_handler.h"
 #include "texture.h"    
-#include "button.h"
+#include "timer.h"
 
 SDL_Renderer* gRenderer = nullptr;
 SDL_Window* gWindow = nullptr;
 
 LTexture gTimeTextTexture;
-LTexture gPromptTextTexture;
+LTexture gPausePromptTexture;
+LTexture gStartPromptTexture;
 
+LTimer timer;
 
 TTF_Font* gFont;
 
@@ -80,10 +82,13 @@ Status load_media(void){
         return ERR;
     }
         
-    //Load prompt texture
-    if(!gPromptTextTexture.loadFromRenderedText( "Press Enter to Reset Start Time.", textColor)){
-        printf("Unable to render prompt texture!\n");
+    if(!gStartPromptTexture.loadFromRenderedText("Press S to Start or Stop the Timer", textColor)){
         return ERR;
+    }
+    
+    //Load pause prompt texture
+    if(!gPausePromptTexture.loadFromRenderedText("Press P to Pause or Unpause the Timer", textColor)){
+       return ERR;
     }
 
 
@@ -107,19 +112,21 @@ void run_app(void){
 
         //Set text to be rendered
         timeText.str( "" );
-        timeText << "Milliseconds since start time " << SDL_GetTicks() - startTime; 
+        timeText << "Seconds since start time " << (timer.getTicks() / 1000.f) ; 
 
-        if(!gTimeTextTexture.loadFromRenderedText( timeText.str().c_str(), textColor ) ){
-            printf( "Unable to render time texture!\n" );
+        //Render text
+        if(!gTimeTextTexture.loadFromRenderedText(timeText.str().c_str(), textColor)){
+            SDL_Log("Unable to render time texture!\n");
         }
 
 
         SDL_SetRenderDrawColor(gRenderer, 0xFF, 0xFF, 0xFF, 0xFF);
         SDL_RenderClear(gRenderer);
 
-        gPromptTextTexture.render( ( SCREEN_WIDTH - gPromptTextTexture.getWidth() ) / 2, 0 );
-        gTimeTextTexture.render( ( SCREEN_WIDTH - gPromptTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gPromptTextTexture.getHeight() ) / 2 );
-    
+        gStartPromptTexture.render( ( SCREEN_WIDTH - gStartPromptTexture.getWidth() ) / 2, 0 );
+        gPausePromptTexture.render( ( SCREEN_WIDTH - gPausePromptTexture.getWidth() ) / 2, gStartPromptTexture.getHeight() );
+        gTimeTextTexture.render( ( SCREEN_WIDTH - gTimeTextTexture.getWidth() ) / 2, ( SCREEN_HEIGHT - gTimeTextTexture.getHeight() ) / 2 );
+
         SDL_RenderPresent(gRenderer);
     }
 }
@@ -128,8 +135,9 @@ void run_app(void){
     Libera a mémoria dos objetos SDL
 */
 void close_sdl(void){
+    gStartPromptTexture.free();
+    gPausePromptTexture.free();
     gTimeTextTexture.free();
-    gPromptTextTexture.free();
 
 
     SDL_DestroyRenderer(gRenderer);

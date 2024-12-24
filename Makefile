@@ -28,11 +28,11 @@ $(OBJECT_FOLDER)/%.o: ./src/%.cpp ./src/%.cpp
 MKFOLDER:
 	@ mkdir -p $(BUILD_FOLDER) $(OBJECT_FOLDER)
 
-clean:
+clear:
 	rm -rf $(BUILD_FOLDER)/$(PROJECT).exe
 	rm -rf $(OBJECT_FOLDER)/*.o
 
 run: $(BUILD_FOLDER)/$(PROJECT).exe
 	$(BUILD_FOLDER)/$(PROJECT).exe
 
-.PHONY: clean MKFOLDER run
+.PHONY: clear MKFOLDER run

@@ -1,5 +1,5 @@
 #include "event_handler.h"
-#include "button.h"
+#include "timer.h"
 #include "global.h"
 
 SDL_Event e;
@@ -11,8 +11,25 @@ Status event_handler(void){
             return STOP; 
         }        
 
-        if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_RETURN){
-            startTime = SDL_GetTicks();
+        if(e.type == SDL_KEYDOWN){
+            //Start/stop
+            if(e.key.keysym.sym == SDLK_s){
+                if(timer.isStarted()){
+                    timer.stop();
+                }
+                else{
+                    timer.start();
+                }
+            }
+        
+            else if(e.key.keysym.sym == SDLK_p){
+                if(timer.isPaused()){
+                    timer.unpause();
+                }
+                else{
+                    timer.pause();
+                }
+            }
         }
 
     }
