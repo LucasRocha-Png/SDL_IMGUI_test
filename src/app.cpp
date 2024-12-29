@@ -1,14 +1,14 @@
 #include "app.h"
 
 App::App(const std::string& windowName, int screenWidth, int screenHeight, int maxFps) : 
-windowName(windowName), screenWidth(screenWidth), screenHeight(screenHeight),
+windowName(windowName), screenWidth(screenWidth), screenHeight(screenHeight), dot(nullptr),
 fpsManager(maxFps){
 }
 
 App::~App(){
     if (this->window) SDL_DestroyWindow(this->window);
     if (this->renderer) SDL_DestroyRenderer(this->renderer);
-    SDL_Log("Closing App.");
+    SDL_Log("Exiting.");
 }
 
 void App::createWindowAndRenderer(){
@@ -25,36 +25,55 @@ void App::createWindowAndRenderer(){
 void App::init(){
     this->sdlManager.init();
     this->createWindowAndRenderer();
+    this->dot = std::unique_ptr<Dot>(new Dot(this->renderer, this->screenWidth, this->screenHeight));
+
     SDL_Log("SDL initialized successfully.\n");
 }
 
 void App::loadMedia(){
-    this->font = TTF_OpenFont("assets/fonts/lazy.ttf", 28);
+    this->font = TTF_OpenFont("assets/fonts/lazy.ttf", 12);
     if(this->font == nullptr){
         throw std::runtime_error(std::string("Failed to load lazy font! SDL_ttf Error: ") + std::string(TTF_GetError()));
     }
-    SDL_Log("Media loaded with success.\n");
+
+
+    SDL_Log("Media loaded successfully.\n");
 }
 
-bool App::quitEventHandler(){
-    while(SDL_PollEvent(&this->e)) if (e.type == SDL_QUIT) return true; 
+bool App::handleEvent(){
+    while(SDL_PollEvent(&this->e)) {
+        if (e.type == SDL_QUIT) {
+            return true;
+        }
+
+        dot->handleEvent(this->e);
+
+    } 
     return false;
 }
 
 void App::loop(){
     LTexture fpsText(this->renderer);
     SDL_Color textColor = {0, 0, 0, 255};
+    bool isRunning = true;
+
     this->fpsManager.startFpsTimer();
-    while(!this->quitEventHandler()){
-
+    while(isRunning){
         this->fpsManager.startFrame();
-
-        fpsText.loadFromRenderedText(this->font, std::to_string(this->fpsManager.getFps()).c_str(), textColor);       
+        
+        if (this->handleEvent() == true){
+            isRunning = false;
+        }
+      
+        dot->move();
 
         SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
         SDL_RenderClear(this->renderer);
 
-        fpsText.render((this->screenWidth - fpsText.getWidth())/2, (this->screenHeight - fpsText.getHeight())/2);
+        fpsText.loadFromRenderedText(this->font, (std::string("FPS: ") + std::to_string(this->fpsManager.getFps())).c_str(), textColor); 
+        fpsText.render((this->screenWidth - fpsText.getWidth()*1.1), (fpsText.getHeight()*1.1));
+        
+        dot->render();
 
         SDL_RenderPresent(this->renderer);
         this->fpsManager.endFrame();

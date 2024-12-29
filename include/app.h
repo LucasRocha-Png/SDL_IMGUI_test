@@ -4,6 +4,7 @@
 #include "LTexture.h"
 #include "FPSManager.h"
 #include "SDLSubsystemManager.h"
+#include "Dot.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -24,7 +25,8 @@ private:
     TTF_Font* font;
     SDL_Window* window; 
     SDL_Renderer* renderer;
-
+    std::unique_ptr<Dot> dot;
+    
     SDLSubsystemManager sdlManager;
     FpsManager fpsManager;
 
@@ -36,6 +38,6 @@ public:
     void createWindowAndRenderer();
 
     void loadMedia();
-    bool quitEventHandler();
+    bool handleEvent();
     void loop();
 };

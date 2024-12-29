@@ -4,7 +4,7 @@
 const std::string WINDOW_NAME = "Lucas Rocha";
 const int SCREEN_WIDTH = 640; 
 const int SCREEN_HEIGHT = 480;
-const int MAX_FPS = -1;
+const int MAX_FPS = 60;
 
 int main(int argc, char* args[]){
     (void)argc;
