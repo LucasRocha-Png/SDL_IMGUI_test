@@ -53,6 +53,15 @@ bool App::handleEvent(){
 }
 
 void App::loop(){
+
+    //Set the wall
+    SDL_Rect wall;
+    wall.x = 300;
+    wall.y = 40;
+    wall.w = 40;
+    wall.h = 400;
+
+
     LTexture fpsText(this->renderer);
     SDL_Color textColor = {0, 0, 0, 255};
     bool isRunning = true;
@@ -65,13 +74,16 @@ void App::loop(){
             isRunning = false;
         }
       
-        dot->move();
+        dot->move(wall);
 
         SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
         SDL_RenderClear(this->renderer);
 
         fpsText.loadFromRenderedText(this->font, (std::string("FPS: ") + std::to_string(this->fpsManager.getFps())).c_str(), textColor); 
         fpsText.render((this->screenWidth - fpsText.getWidth()*1.1), (fpsText.getHeight()*1.1));
+
+        SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255 );   
+        SDL_RenderDrawRect(this->renderer, &wall);
         
         dot->render();
 

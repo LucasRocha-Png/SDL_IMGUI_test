@@ -9,6 +9,8 @@ class Dot{
         LTexture dotTexture;
         int xLimit, yLimit;
 
+        SDL_Rect collisionBox;
+
     public:
         //The dimensions of the dot
         static const int DOT_WIDTH = 20;
@@ -24,7 +26,10 @@ class Dot{
         void handleEvent(SDL_Event& e);
 
         //Moves the dot
-        void move();
+        void move(SDL_Rect& wall);
+
+        // Check Collision
+        bool checkCollision(SDL_Rect& wall);
 
         //Shows the dot on the screen
         void render();
