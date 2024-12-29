@@ -1,10 +1,10 @@
 #pragma once
 
 #include "LTimer.h"
+#include "LWindow.h"
 #include "LTexture.h"
 #include "FPSManager.h"
 #include "SDLSubsystemManager.h"
-#include "Dot.h"
 
 #include <SDL.h>
 #include <SDL_image.h>
@@ -16,30 +16,24 @@
 
 class App{
 private:
-    const std::string& windowName;
+    // Window data
+    const std::string& windowTitle;
     int screenWidth;
     int screenHeight;
-    int levelWidth;
-    int levelHeight;
-    int maxFps;
-
-    SDL_Event e;
-    TTF_Font* font;
-    SDL_Window* window; 
-    SDL_Renderer* renderer;
-    std::unique_ptr<Dot> dot;
     
+    // Components
     SDLSubsystemManager sdlManager;
     FpsManager fpsManager;
+    LWindow windowManager;
+
+    SDL_Event e;
+    SDL_Renderer* renderer;
 
 public:
-    App(const std::string& windowName = "window", int screenWidth = 640, int screenHeight = 480, int levelWidth = 1280, int levelHeight = 960, int maxFps = 60);
+    App(const std::string& windowTitle = "window", int screenWidth = 640, int screenHeight = 480);
     ~App();
 
     void init();
-    void createWindowAndRenderer();
-
-    void loadMedia();
     bool handleEvent();
     void loop();
 };

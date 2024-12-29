@@ -1,17 +1,12 @@
 #include "FpsManager.h"
-#include <cstdio>
-
 
 FpsManager::FpsManager(int maxFps) :
 maxFps(maxFps), fps(0.0), countedFrames(0){}
 
+FpsManager::~FpsManager(){}
 
 void FpsManager::startFpsTimer(){
     this->fpsTimer.start();
-}
-
-void FpsManager::setMaxFps(int maxFps){
-    this->maxFps = maxFps;
 }
 
 void FpsManager::startFrame(){
