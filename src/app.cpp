@@ -1,0 +1,62 @@
+#include "app.h"
+
+App::App(const std::string& windowName, int screenWidth, int screenHeight, int maxFps) : 
+windowName(windowName), screenWidth(screenWidth), screenHeight(screenHeight),
+fpsManager(maxFps){
+}
+
+App::~App(){
+    if (this->window) SDL_DestroyWindow(this->window);
+    if (this->renderer) SDL_DestroyRenderer(this->renderer);
+    SDL_Log("Closing App.");
+}
+
+void App::createWindowAndRenderer(){
+    this->window = SDL_CreateWindow(this->windowName.c_str(), SDL_WINDOWPOS_CENTERED,SDL_WINDOWPOS_CENTERED, this->screenWidth, this->screenHeight, SDL_WINDOW_SHOWN);  
+    if(this->window == nullptr){
+        throw std::runtime_error(std::string("Window could not be created! SDL Error: ") + std::string(SDL_GetError()));
+    }
+    this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED); 
+    if(this->renderer == nullptr){
+        throw std::runtime_error(std::string("Renderer could not be created! SDL Error: ") + std::string(SDL_GetError()));
+    }
+}
+
+void App::init(){
+    this->sdlManager.init();
+    this->createWindowAndRenderer();
+    SDL_Log("SDL initialized successfully.\n");
+}
+
+void App::loadMedia(){
+    this->font = TTF_OpenFont("assets/fonts/lazy.ttf", 28);
+    if(this->font == nullptr){
+        throw std::runtime_error(std::string("Failed to load lazy font! SDL_ttf Error: ") + std::string(TTF_GetError()));
+    }
+    SDL_Log("Media loaded with success.\n");
+}
+
+bool App::quitEventHandler(){
+    while(SDL_PollEvent(&this->e)) if (e.type == SDL_QUIT) return true; 
+    return false;
+}
+
+void App::loop(){
+    LTexture fpsText(this->renderer);
+    SDL_Color textColor = {0, 0, 0, 255};
+    this->fpsManager.startFpsTimer();
+    while(!this->quitEventHandler()){
+
+        this->fpsManager.startFrame();
+
+        fpsText.loadFromRenderedText(this->font, std::to_string(this->fpsManager.getFps()).c_str(), textColor);       
+
+        SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+        SDL_RenderClear(this->renderer);
+
+        fpsText.render((this->screenWidth - fpsText.getWidth())/2, (this->screenHeight - fpsText.getHeight())/2);
+
+        SDL_RenderPresent(this->renderer);
+        this->fpsManager.endFrame();
+    }
+}

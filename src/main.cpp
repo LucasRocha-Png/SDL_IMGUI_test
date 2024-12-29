@@ -1,24 +1,19 @@
 #include "main.h"
-#include "global.h"
-#include "sdl_app.h"
+#include "app.h"
 
-
+const std::string WINDOW_NAME = "Lucas Rocha";
 const int SCREEN_WIDTH = 640; 
 const int SCREEN_HEIGHT = 480;
-
+const int MAX_FPS = -1;
 
 int main(int argc, char* args[]){
+    (void)argc;
+    (void)args;
 
-    SDL_Log("Iniciando programa.\n");
-
-    if (init_sdl() == ERR){
-        SDL_Log("Failed to initialize!\n");
-        close_sdl();
-        return -1;
-    }
-
-	run_app();
-    close_sdl();
+    App app(WINDOW_NAME, SCREEN_WIDTH, SCREEN_HEIGHT, MAX_FPS);
+    app.init();
+    app.loadMedia();
+    app.loop();
 
 	return 0;
 }
