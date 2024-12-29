@@ -4,12 +4,10 @@
 class Dot{
     private:
         //The X and Y offsets of the dot
-        int mPosX, mPosY;
-        int mVelX, mVelY;
+        int posX, posY;
+        int velX, velY;
         LTexture dotTexture;
         int xLimit, yLimit;
-
-        SDL_Rect collisionBox;
 
     public:
         //The dimensions of the dot
@@ -22,6 +20,9 @@ class Dot{
         //Initializes the variables
         Dot(SDL_Renderer* renderer, int xLimit, int yLimit);
 
+        int getPosX() const;
+        int getPosY() const;
+
         //Takes key presses and adjusts the dot's velocity
         void handleEvent(SDL_Event& e);
 
@@ -29,8 +30,8 @@ class Dot{
         void move(SDL_Rect& wall);
 
         // Check Collision
-        bool checkCollision(SDL_Rect& wall);
+        bool checkCollision(SDL_Rect& a, SDL_Rect& b);
 
         //Shows the dot on the screen
-        void render();
+        void render(int camX, int camY);
 };

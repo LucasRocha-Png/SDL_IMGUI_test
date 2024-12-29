@@ -19,6 +19,8 @@ private:
     const std::string& windowName;
     int screenWidth;
     int screenHeight;
+    int levelWidth;
+    int levelHeight;
     int maxFps;
 
     SDL_Event e;
@@ -31,7 +33,7 @@ private:
     FpsManager fpsManager;
 
 public:
-    App(const std::string& windowName = "window", int screenWidth = 640, int screenHeight = 480, int maxFps = 60);
+    App(const std::string& windowName = "window", int screenWidth = 640, int screenHeight = 480, int levelWidth = 1280, int levelHeight = 960, int maxFps = 60);
     ~App();
 
     void init();

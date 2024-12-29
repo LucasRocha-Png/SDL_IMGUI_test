@@ -1,9 +1,8 @@
 #include "app.h"
 
-App::App(const std::string& windowName, int screenWidth, int screenHeight, int maxFps) : 
-windowName(windowName), screenWidth(screenWidth), screenHeight(screenHeight), dot(nullptr),
-fpsManager(maxFps){
-}
+App::App(const std::string& windowName, int screenWidth, int screenHeight, int levelWidth, int levelHeight, int maxFps) : 
+windowName(windowName), screenWidth(screenWidth), screenHeight(screenHeight), levelWidth(levelWidth), levelHeight(levelHeight), dot(nullptr), fpsManager(maxFps)
+{}
 
 App::~App(){
     if (this->window) SDL_DestroyWindow(this->window);
@@ -25,7 +24,7 @@ void App::createWindowAndRenderer(){
 void App::init(){
     this->sdlManager.init();
     this->createWindowAndRenderer();
-    this->dot = std::unique_ptr<Dot>(new Dot(this->renderer, this->screenWidth, this->screenHeight));
+    this->dot = std::unique_ptr<Dot>(new Dot(this->renderer, this->levelWidth, this->levelHeight));
 
     SDL_Log("SDL initialized successfully.\n");
 }
@@ -56,37 +55,67 @@ void App::loop(){
 
     //Set the wall
     SDL_Rect wall;
-    wall.x = 300;
-    wall.y = 40;
     wall.w = 40;
     wall.h = 400;
+    wall.x = (this->levelWidth - wall.w)/2;
+    wall.y = (this->levelHeight - wall.h)/2;
 
+
+    LTexture bgTexture(this->renderer);
+    bgTexture.loadFromFile("assets/images/bg.png");
+
+
+    SDL_Rect camera = {0, 0, this->screenWidth, this->screenHeight};
 
     LTexture fpsText(this->renderer);
-    SDL_Color textColor = {0, 0, 0, 255};
-    bool isRunning = true;
+    LTexture ballPosText(this->renderer);
+    LTexture wallPosText(this->renderer);
 
+    SDL_Color textColor = {0, 0, 0, 255};
+
+    bool isRunning = true;
     this->fpsManager.startFpsTimer();
     while(isRunning){
+        if (this->handleEvent() == true) isRunning = false;
+    
         this->fpsManager.startFrame();
-        
-        if (this->handleEvent() == true){
-            isRunning = false;
-        }
-      
-        dot->move(wall);
-
         SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
         SDL_RenderClear(this->renderer);
 
+        camera.x = (dot->getPosX() + Dot::DOT_WIDTH / 2) - (this->screenWidth / 2);
+        camera.y = (dot->getPosY() + Dot::DOT_HEIGHT / 2) - (this->screenHeight / 2);
+        if(camera.x < 0) camera.x = 0;
+        if(camera.y < 0) camera.y = 0;
+        if(camera.x > this->levelWidth - camera.w) camera.x = this->levelWidth - camera.w;
+        if(camera.y > this->levelHeight - camera.h) camera.y = this->levelHeight - camera.h;
+        
+        
+        bgTexture.render(0, 0, &camera);
+
+        wall.x = (this->levelWidth - wall.w)/2 - camera.x;
+        wall.y = (this->levelHeight - wall.h)/2 - camera.y;
+        dot->move(wall);
+
+        SDL_SetRenderDrawColor(this->renderer, 0, 0, 255, 255); 
+        SDL_RenderFillRect(this->renderer, &wall);
+        
+        dot->render(camera.x, camera.y);
+        //Render informations -------------------------------------------
+        ballPosText.loadFromRenderedText(this->font, (std::string("Ball X: ") + std::to_string(this->dot->getPosX())).c_str(), textColor);
+        ballPosText.render(10, (ballPosText.getHeight()*1.1));
+
+        wallPosText.loadFromRenderedText(this->font, (std::string("Wall X: ") + std::to_string(wall.x)).c_str(), textColor);
+        wallPosText.render((ballPosText.getWidth()*1.5), (ballPosText.getHeight()*1.1));
+
+        ballPosText.loadFromRenderedText(this->font, (std::string("Ball Y: ") + std::to_string(this->dot->getPosY())).c_str(), textColor);
+        ballPosText.render(10, (ballPosText.getHeight()*2.2));
+
+        wallPosText.loadFromRenderedText(this->font, (std::string("Wall Y: ") + std::to_string(wall.y)).c_str(), textColor);
+        wallPosText.render((ballPosText.getWidth()*1.5), (ballPosText.getHeight()*2.2));
+
+
         fpsText.loadFromRenderedText(this->font, (std::string("FPS: ") + std::to_string(this->fpsManager.getFps())).c_str(), textColor); 
         fpsText.render((this->screenWidth - fpsText.getWidth()*1.1), (fpsText.getHeight()*1.1));
-
-        SDL_SetRenderDrawColor(this->renderer, 0, 0, 0, 255 );   
-        SDL_RenderDrawRect(this->renderer, &wall);
-        
-        dot->render();
-
         SDL_RenderPresent(this->renderer);
         this->fpsManager.endFrame();
     }
