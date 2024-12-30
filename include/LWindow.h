@@ -14,14 +14,11 @@ public:
     //Creates window
     void init(const std::string& windowTitle, int screenWidth, int screenHeight);
 
-    //Creates renderer from internal window
-    SDL_Renderer* createRenderer();
-
     //Handles window events
     void handleEvent(SDL_Event& e);
 
-    //Deallocates internals
-    void free();
+    //Focus
+    void focus();
 
     //Window dimensions
     int getWidth() const;
@@ -32,6 +29,11 @@ public:
     bool hasKeyboardFocus() const;
     bool isMinimized() const;
 
+    // Render
+    void render();
+    SDL_Renderer* getRenderer() const;
+    SDL_Window* getWindow() const;
+
     void changeWindowTitle();
 
 private:
@@ -39,7 +41,8 @@ private:
     SDL_Window* window;
     SDL_Renderer* renderer;
     std::string windowTitle;
-    
+    unsigned int windowID;
+
     //Window dimensions
     int width;
     int height;
@@ -49,4 +52,5 @@ private:
     bool keyboardFocus;
     bool fullScreen;
     bool minimized;
+    bool shown;
 };

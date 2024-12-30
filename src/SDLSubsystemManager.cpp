@@ -28,7 +28,7 @@ void SDLSubsystemManager::init(){
     }
 
     this->isInitialized = true;
-    SDL_Log("SDL subsystems initialized successfully.");
+    SDL_Log("SDL initialized.");
 }
 
 void SDLSubsystemManager::quit(){
@@ -37,7 +37,7 @@ void SDLSubsystemManager::quit(){
         TTF_Quit();
         IMG_Quit();
         SDL_Quit();
-        SDL_Log("SDL subsystems cleaned up.");
+        SDL_Log("SDL destroyed.");
         this->isInitialized = false;
     }
 }

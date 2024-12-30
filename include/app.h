@@ -28,6 +28,7 @@ private:
 
     SDL_Event e;
     SDL_Renderer* renderer;
+    SDL_Window* window;
 
 public:
     App(const std::string& windowTitle = "window", int screenWidth = 640, int screenHeight = 480);

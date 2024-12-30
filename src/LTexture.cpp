@@ -1,7 +1,7 @@
 #include "LTexture.h"
 
-LTexture::LTexture(SDL_Renderer* renderer) :
-renderer(renderer), texture(nullptr), width(0), height(0) {}
+LTexture::LTexture(SDL_Renderer* renderer = nullptr) :
+renderer(renderer), texture(nullptr), colorKey(nullptr), width(0), height(0) {}
 
 LTexture::~LTexture() {
     this->free();
@@ -25,31 +25,32 @@ void LTexture::free(void) {
 }
 
 void LTexture::loadFromFile(const std::string& path){
-    this->free();
+    //Get rid of preexisting texture
+	free();
 
-    // Criamos a superfície
-    SDL_Surface* surface = IMG_Load(path.c_str());
-    if (surface == nullptr) {
-        throw std::runtime_error("Unable to load image " + path + "! SDL_image Error: " + IMG_GetError());
+	//Load image at specified path
+	SDL_Surface* loadedSurface = IMG_Load(path.c_str());
+	if(loadedSurface == nullptr){
+		throw std::runtime_error(std::string("Unable to load image! SDL_image Error: ") + std::string(IMG_GetError()));
+	}
+	
+    //Color key image
+    if (this->colorKey) SDL_SetColorKey(loadedSurface, SDL_TRUE, SDL_MapRGB(loadedSurface->format, this->colorKey->r, this->colorKey->g, this->colorKey->b));
+    
+    //Create texture from surface pixels
+    this->texture = SDL_CreateTextureFromSurface(this->renderer, loadedSurface);
+    if(this->texture == nullptr){
+        throw std::runtime_error(std::string("Unable to create texture! SDL Error: ") + std::string(SDL_GetError()));
     }
 
-    // Criamos um color key para deixar o fundo transparente
-    SDL_SetColorKey(surface, SDL_TRUE, SDL_MapRGB(surface->format, 0, 0xFF, 0xFF));
+    //Get image dimensions
+    this->width = loadedSurface->w;
+    this->height = loadedSurface->h;
 
-    // Criamos a textura
-    SDL_Texture* texture = SDL_CreateTextureFromSurface(this->renderer, surface);
-    if (texture == nullptr) {
-        SDL_FreeSurface(surface);
-        throw std::runtime_error("Unable to create texture " + path + "! SDL Error: " + SDL_GetError());
-    }
-
-    // Salvamos as dimensões da superfície
-    this->width = surface->w;
-    this->height = surface->h;
-    this->texture = texture;
-
-    SDL_FreeSurface(surface);
+    //Get rid of old loaded surface
+    SDL_FreeSurface(loadedSurface);
 }
+
 
 void LTexture::loadFromRenderedText(TTF_Font* font, const std::string& textureText, SDL_Color textColor){
     this->free();
@@ -59,20 +60,19 @@ void LTexture::loadFromRenderedText(TTF_Font* font, const std::string& textureTe
         throw std::runtime_error("Unable to render text surface! SDL_ttf Error: " + std::string(TTF_GetError()));
     }
 
-    // Criar textura a partir dos pixels da superfície
+
     this->texture = SDL_CreateTextureFromSurface(this->renderer, textSurface);
     if (this->texture == nullptr) {
         SDL_FreeSurface(textSurface);
         throw std::runtime_error("Unable to create texture from rendered text! SDL Error: " + std::string(SDL_GetError()));
     }
 
-    // Salvamos as dimensões da superfície
     this->width = textSurface->w;
     this->height = textSurface->h;
 
-    // Liberar a superfície antiga
     SDL_FreeSurface(textSurface);
 }
+
 
 void LTexture::render(int x, int y, SDL_Rect* clip, double angle, SDL_Point* center, SDL_RendererFlip flip) {
     SDL_Rect renderQuad = {x, y, this->width, this->height};
@@ -95,4 +95,30 @@ void LTexture::setBlendMode(SDL_BlendMode blending) {
 
 void LTexture::setAlpha(Uint8 alpha) {
     SDL_SetTextureAlphaMod(this->texture, alpha);
+}
+
+void LTexture::setColorKey(SDL_Color* colorKey){
+    this->colorKey = colorKey;
+}
+
+void LTexture::createBlank(int width, int height, SDL_TextureAccess access){
+    free();
+
+    //Create uninitialized texture
+    this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, access, width, height );
+    if(this->texture == nullptr){
+        throw std::runtime_error(std::string("Unable to create streamable blank texture! SDL Error: ") + std::string(SDL_GetError()));
+    }
+
+    this->width = width;
+    this->height = height;
+}
+
+void LTexture::setAsRenderTarget(){
+    //Make self render target
+    SDL_SetRenderTarget(this->renderer, this->texture);
+}
+
+void LTexture::resetRenderTarget(){
+    SDL_SetRenderTarget(this->renderer, nullptr);
 }

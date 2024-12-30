@@ -2,16 +2,20 @@
 
 LWindow::LWindow(){
     this->window = nullptr;
+    this->renderer = nullptr;
+    this->windowID = 0;
     this->mouseFocus = false;
     this->keyboardFocus = false;
     this->fullScreen = false;
     this->minimized = false;
+    this->shown = false;
     this->width = 0;
     this->height = 0;
 }
 LWindow::~LWindow(){
     if (this->window) SDL_DestroyWindow(this->window);    
     if (this->renderer) SDL_DestroyRenderer(this->renderer);
+    SDL_Log("Window ID %d destroyed!", this->windowID);
 }
 
 void LWindow::init(const std::string& windowTitle, int screenWidth, int screenHeight){
@@ -21,28 +25,42 @@ void LWindow::init(const std::string& windowTitle, int screenWidth, int screenHe
         throw std::runtime_error(std::string("Could not create the window. SDL Error: ") + std::string(SDL_GetError()));
     }
 
+    this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+    if (this->renderer == nullptr){
+        throw std::runtime_error(std::string("Could not create a renderer. SDL_Error: ") + std::string(SDL_GetError()));
+    }
+
+    //Initialize renderer color
+    SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+
+    //Grab window identifier
+    this->windowID = SDL_GetWindowID(this->window);
+
+    this->shown = true;
     this->windowTitle = windowTitle;
     this->mouseFocus = true;
     this->keyboardFocus = true;
     this->width = screenWidth;
     this->height = screenHeight;
-}
 
-SDL_Renderer* LWindow::createRenderer(){
-    this->renderer = SDL_CreateRenderer(this->window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-    if (this->renderer == nullptr){
-        throw std::runtime_error(std::string("Could not create a renderer. SDL_Error: ") + std::string(SDL_GetError()));
-    }
-    
-    return this->renderer;
+    SDL_Log("Window ID %d created!", this->windowID);
 }
 
 void LWindow::handleEvent(SDL_Event& e){
     //Window event occured
-    if(e.type == SDL_WINDOWEVENT){
+    if(e.type == SDL_WINDOWEVENT && e.window.windowID == this->windowID){
         //Caption update flag
         bool updateCaption = false;
         switch(e.window.event){
+             //Window appeared
+            case SDL_WINDOWEVENT_SHOWN:
+            this->shown = true;
+            break;
+
+            //Window disappeared
+            case SDL_WINDOWEVENT_HIDDEN:
+            this->shown = false;
+            break;
             //Get new dimensions and repaint on window size change
             case SDL_WINDOWEVENT_SIZE_CHANGED:
             this->width = e.window.data1;
@@ -93,6 +111,11 @@ void LWindow::handleEvent(SDL_Event& e){
             case SDL_WINDOWEVENT_RESTORED:
             this->minimized = false;
             break;
+
+            //Hide on close
+            case SDL_WINDOWEVENT_CLOSE:
+            SDL_HideWindow(this->window);
+            break;
         }
 
         //Update window caption with new data
@@ -101,7 +124,7 @@ void LWindow::handleEvent(SDL_Event& e){
         }
     }
 
-    //Enter exit full screen on return key
+    //Enter exit full screen on F11 key
     else if(e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_F11){
         if(this->fullScreen){
             SDL_SetWindowFullscreen(this->window, 0);
@@ -117,7 +140,7 @@ void LWindow::handleEvent(SDL_Event& e){
 
 void LWindow::changeWindowTitle(){
     std::stringstream caption;
-    caption << this->windowTitle << " - MouseFocus: " << ((this->mouseFocus) ? "On" : "Off" ) << 
+    caption << this->windowTitle << " - ID:" << this->windowID << " - MouseFocus: " << ((this->mouseFocus) ? "On" : "Off" ) << 
     " - KeyboardFocus: " << ((this->keyboardFocus) ? "On" : "Off");
     SDL_SetWindowTitle(this->window, caption.str().c_str());
 }
@@ -141,4 +164,31 @@ bool LWindow::hasKeyboardFocus() const{
 
 bool LWindow::isMinimized() const{
     return this->minimized;
+}
+
+void LWindow::focus(){
+    if(!this->shown){
+        SDL_ShowWindow(this->window);
+    }
+
+    SDL_RaiseWindow(this->window);
+}
+
+void LWindow::render(){
+    if(!this->minimized){    
+        //Clear screen
+        SDL_SetRenderDrawColor(this->renderer, 255, 255, 255, 255);
+        SDL_RenderClear(this->renderer);
+
+        //Update screen
+        SDL_RenderPresent(this->renderer);
+    }
+}
+
+SDL_Renderer* LWindow::getRenderer() const{
+    return this->renderer;
+}
+
+SDL_Window* LWindow::getWindow() const {
+    return this->window;
 }
