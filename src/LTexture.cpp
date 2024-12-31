@@ -15,6 +15,10 @@ int LTexture::getHeight(void) const {
     return this->height;
 }
 
+SDL_Texture* LTexture::getTexture(void) const{
+    return this->texture;
+}
+
 void LTexture::free(void) {
     if (this->texture != nullptr) {
         SDL_DestroyTexture(this->texture);
@@ -105,7 +109,7 @@ void LTexture::createBlank(int width, int height, SDL_TextureAccess access){
     free();
 
     //Create uninitialized texture
-    this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, access, width, height );
+    this->texture = SDL_CreateTexture(this->renderer, SDL_PIXELFORMAT_RGBA8888, access, width, height);
     if(this->texture == nullptr){
         throw std::runtime_error(std::string("Unable to create streamable blank texture! SDL Error: ") + std::string(SDL_GetError()));
     }
@@ -119,6 +123,6 @@ void LTexture::setAsRenderTarget(){
     SDL_SetRenderTarget(this->renderer, this->texture);
 }
 
-void LTexture::resetRenderTarget(){
+void LTexture::resetAsRenderTarget(){
     SDL_SetRenderTarget(this->renderer, nullptr);
 }

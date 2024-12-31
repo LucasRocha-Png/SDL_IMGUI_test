@@ -22,9 +22,10 @@ class LTexture{
 
     int getWidth(void) const;
     int getHeight(void) const;
+    SDL_Texture* getTexture(void) const;
     
     
-    void createBlank(int width, int height, SDL_TextureAccess access);
+    void createBlank(int width, int height, SDL_TextureAccess access = SDL_TEXTUREACCESS_TARGET);
     void loadFromRenderedText(TTF_Font* font, const std::string& textureText, SDL_Color textColor);
     void loadFromFile(const std::string& path);
 
@@ -36,7 +37,7 @@ class LTexture{
     void setAlpha(Uint8 alpha);
     void setColorKey(SDL_Color* colorKey);
     void setAsRenderTarget();
-    void resetRenderTarget();
+    void resetAsRenderTarget();
     void render(int x, int y, SDL_Rect* clip = nullptr, double angle = 0.0, SDL_Point* center = nullptr, SDL_RendererFlip flip = SDL_FLIP_NONE);
     
     void free(void);

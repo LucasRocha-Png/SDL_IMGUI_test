@@ -20,7 +20,7 @@ LWindow::~LWindow(){
 
 void LWindow::init(const std::string& windowTitle, int screenWidth, int screenHeight){
     //Create window
-    this->window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    this->window = SDL_CreateWindow(windowTitle.c_str(), SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, screenWidth, screenHeight, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE | SDL_WINDOW_ALLOW_HIGHDPI);
     if (this->window == nullptr){
         throw std::runtime_error(std::string("Could not create the window. SDL Error: ") + std::string(SDL_GetError()));
     }

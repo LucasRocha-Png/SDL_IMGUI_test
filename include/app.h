@@ -5,14 +5,21 @@
 #include "LTexture.h"
 #include "FPSManager.h"
 #include "SDLSubsystemManager.h"
+#include "ImguiSubsystemManager.h"
+
+#include <memory>
+#include <string>
+
 
 #include <SDL.h>
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
-#include <memory>
-#include <string>
+#include <SDL_thread.h>
 
+#include <imgui.h>
+#include <imgui_impl_sdl2.h>
+#include <imgui_impl_sdlrenderer2.h>
 
 class App{
 private:
@@ -23,12 +30,17 @@ private:
     
     // Components
     SDLSubsystemManager sdlManager;
-    FpsManager fpsManager;
+    ImguiSubsystemManager imguiManager;
+    
     LWindow windowManager;
 
     SDL_Event e;
     SDL_Renderer* renderer;
     SDL_Window* window;
+
+    float xBar;
+    float yBar;
+    bool isPressed;
 
 public:
     App(const std::string& windowTitle = "window", int screenWidth = 640, int screenHeight = 480);
